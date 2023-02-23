@@ -1,5 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {View, FlatList, StyleSheet, SafeAreaView} from 'react-native';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import Video from 'react-native-video';
 import SplashScreen from 'react-native-splash-screen';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
@@ -63,7 +71,7 @@ const App = () => {
   }, []);
 
   // Custom component to render video with memo function
-  const MyComponent = React.memo(({item}) => {
+  const FullScreenScrollableVideoComponent = React.memo(({item}) => {
     return (
       <View style={[style.mainView]}>
         <Video
@@ -72,13 +80,58 @@ const App = () => {
           resizeMode={'contain'}
           repeat={true}
         />
+        <View style={style.userDetailsView}>
+          <View style={style.imageWithFullNameView}>
+            <Image
+              source={{
+                uri: 'https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80',
+              }}
+              style={style.profileImage}
+            />
+            <Text numberOfLines={1} style={style.fullNameText}>
+              {'Krishankant Sharma'}
+            </Text>
+          </View>
+          <Text numberOfLines={1} style={style.dateText}>
+            {'23 Feb 2023'}
+          </Text>
+          <Text numberOfLines={1} style={style.userNameText}>
+            {'@krishankant_sharma_1234'}
+          </Text>
+        </View>
+        <View style={style.sideIconsView}>
+          <TouchableOpacity style={style.likeImageView}>
+            <Image
+              source={{
+                uri: 'https://img.icons8.com/fluency-systems-regular/48/null/thumb-up.png',
+              }}
+              style={style.likeImage}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={style.likeImageView}>
+            <Image
+              source={{
+                uri: 'https://img.icons8.com/external-inkubators-basic-outline-inkubators/32/null/external-comment-dashboard-ui-inkubators-basic-outline-inkubators.png',
+              }}
+              style={style.commentImage}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={style.likeImageView}>
+            <Image
+              source={{
+                uri: 'https://img.icons8.com/ios-glyphs/30/null/share-rounded.png',
+              }}
+              style={style.shareImage}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   });
 
   // To Pass custom component in flatlist
   const renderList = ({item}) => {
-    return <MyComponent item={item} />;
+    return <FullScreenScrollableVideoComponent item={item} />;
   };
 
   // To extract keys from list of url's
@@ -118,5 +171,78 @@ const style = StyleSheet.create({
   },
   backgroundVideo: {
     ...StyleSheet.absoluteFillObject, // Used to get full screen view
+  },
+  userDetailsView: {
+    width: '70%',
+    // backgroundColor: 'red',
+    position: 'absolute',
+    bottom: 30,
+    left: 10,
+    justifyContent: 'center',
+  },
+  imageWithFullNameView: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 35,
+  },
+  profileImage: {
+    height: 50,
+    width: 50,
+    resizeMode: 'contain',
+    borderRadius: 50,
+  },
+  fullNameText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: 'white',
+    paddingHorizontal: 15,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: 'white',
+  },
+  userNameText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  sideIconsView: {
+    height: 200,
+    width: '15%',
+    // backgroundColor: 'green',
+    position: 'absolute',
+    bottom: 100,
+    right: 10,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  likeImageView: {
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  likeImage: {
+    height: 35,
+    width: 35,
+    resizeMode: 'contain',
+    borderRadius: 50,
+    tintColor: 'white',
+  },
+  commentImage: {
+    height: 30,
+    width: 30,
+    resizeMode: 'cover',
+    tintColor: 'white',
+  },
+  shareImage: {
+    height: 35,
+    width: 35,
+    resizeMode: 'contain',
+    borderRadius: 50,
+    tintColor: 'white',
   },
 });
