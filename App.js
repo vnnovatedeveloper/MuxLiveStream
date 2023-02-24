@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
   FlatList,
@@ -7,68 +7,71 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import Video from 'react-native-video';
 import SplashScreen from 'react-native-splash-screen';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 const App = () => {
   // Create Array of list which contain url's of video
   const [getVideoList] = useState([
     {
       id: '1',
-      video: `https://stream.mux.com/MbvSFTul33LZ02hVpbRI8IiGCuSafVusnGr015YrTMISo.m3u8`,
+      video: `https://stream.mux.com/Aw3GhX02w22k75SNWJ202pmek85FAzcn6XyIkrtM00bmpY.m3u8`,
+      poster: 'Aw3GhX02w22k75SNWJ202pmek85FAzcn6XyIkrtM00bmpY',
     },
     {
       id: '2',
-      video: `https://stream.mux.com/01SQ37SNv48NoQCKggj01LCIRnlkbf2zkd6bxuOLSZpdQ.m3u8`,
+      video: `https://stream.mux.com/YM8Z6fB5CkFvbdYdnVdF5CCK3Dgl2cRT01IldS7TNxLI.m3u8`,
+      poster: 'YM8Z6fB5CkFvbdYdnVdF5CCK3Dgl2cRT01IldS7TNxLI',
     },
     {
       id: '3',
-      video: `https://stream.mux.com/00Kcm02QywCUYIsSpIKLf02b17GIq9n1BZ01SxUMzw9wuY8.m3u8`,
+      video: `https://stream.mux.com/kcyvx71tK8TM6AP2dmqy4ctD9m5013xPN5FP1BNMVLZQ.m3u8`,
+      poster: 'kcyvx71tK8TM6AP2dmqy4ctD9m5013xPN5FP1BNMVLZQ',
     },
     {
       id: '4',
-      video: `https://stream.mux.com/aBEmBhxdcTHPY4QdJR7yUAnZVpCMoZlr2Jw01JGwiIl8.m3u8`,
+      video: `https://stream.mux.com/jbjKzbIhx154LxNiN1NxMla6YVi02Wg4d73SmRfrGNWk.m3u8`,
+      poster: 'jbjKzbIhx154LxNiN1NxMla6YVi02Wg4d73SmRfrGNWk',
     },
     {
       id: '5',
-      video: `https://stream.mux.com/Uk9C4Y01FAnPYPPXyF8go4aAG1AJOqXQaYIMNdkoANRs.m3u8`,
+      video: `https://stream.mux.com/IWa16i502MVoNNQg0201cIXUm01ivvuZFpKQz1P17VA0163U.m3u8`,
+      poster: 'IWa16i502MVoNNQg0201cIXUm01ivvuZFpKQz1P17VA0163U',
     },
     {
       id: '6',
-      video: `https://stream.mux.com/CVTDCCdbvidiVTv3iwRHh02IaY7ulNjCM4l1wr6qWki00.m3u8`,
+      video: `https://stream.mux.com/Aw3GhX02w22k75SNWJ202pmek85FAzcn6XyIkrtM00bmpY.m3u8`,
+      poster: 'Aw3GhX02w22k75SNWJ202pmek85FAzcn6XyIkrtM00bmpY',
     },
     {
       id: '7',
-      video: `https://stream.mux.com/N5VdnZsQm00WSRe02RcoVXCa3xllTtRUZBYG1OK12pg01g.m3u8`,
+      video: `https://stream.mux.com/YM8Z6fB5CkFvbdYdnVdF5CCK3Dgl2cRT01IldS7TNxLI.m3u8`,
+      poster: 'YM8Z6fB5CkFvbdYdnVdF5CCK3Dgl2cRT01IldS7TNxLI',
     },
     {
       id: '8',
-      video: `https://stream.mux.com/Tv9UaKaF8Rj02rlewrMvnJt0142qLezKyhXH7wvjQqjNA.m3u8`,
+      video: `https://stream.mux.com/Aw3GhX02w22k75SNWJ202pmek85FAzcn6XyIkrtM00bmpY.m3u8`,
+      poster: 'Aw3GhX02w22k75SNWJ202pmek85FAzcn6XyIkrtM00bmpY',
     },
     {
       id: '9',
-      video: `https://stream.mux.com/QZSG1S02eJEMogyvNBteYe549XLrln9mPOweLPUzT501k.m3u8`,
-    },
-    {
-      id: '10',
-      video: `https://stream.mux.com/biagOkM501MEGmx3sdxExFiVNVc8d8xYojijnwQGhJmA.m3u8`,
-    },
-    {
-      id: '11',
-      video: `https://stream.mux.com/o6n01rZHe9c02znHAeMFsi4DEN00ccme01ItK5cbroOUz4c.m3u8`,
-    },
-    {
-      id: '12',
-      video: `https://stream.mux.com/SZ9Qj00RaWjkoBTEjYBaKQV9zQ02fgOFcZ5fNuKAhlUh00.m3u8`,
+      video: `https://stream.mux.com/YM8Z6fB5CkFvbdYdnVdF5CCK3Dgl2cRT01IldS7TNxLI.m3u8`,
+      poster: 'YM8Z6fB5CkFvbdYdnVdF5CCK3Dgl2cRT01IldS7TNxLI',
     },
   ]);
+  const [viewPlaceholder, setViewPlaceholder] = useState(true);
+  const [isFullScreen, setFullScreen] = useState(false);
 
   // Used for hide the splash screen
   useEffect(() => {
     SplashScreen.hide();
   }, []);
+
+  useEffect(() => {}, [viewPlaceholder]);
 
   // Custom component to render video with memo function
   const FullScreenScrollableVideoComponent = React.memo(({item}) => {
@@ -77,8 +80,18 @@ const App = () => {
         <Video
           source={{uri: item.video}}
           style={style.backgroundVideo}
-          resizeMode={'contain'}
+          pictureInPicture={true}
+          resizeMode={isFullScreen ? 'cover' : 'contain'}
           repeat={true}
+          poster={`https://image.mux.com/${item?.poster}/thumbnail.png?fit_mode=smartcrop&time=5`}
+          posterResizeMode={isFullScreen ? 'cover' : 'contain'}
+          onLoadStart={() => {
+            // console.log('Loading start....');
+          }}
+          onLoad={() => {
+            // console.log('Loading done');
+            setViewPlaceholder(false);
+          }}
         />
         <View style={style.userDetailsView}>
           <View style={style.imageWithFullNameView}>
@@ -89,14 +102,14 @@ const App = () => {
               style={style.profileImage}
             />
             <Text numberOfLines={1} style={style.fullNameText}>
-              {'Krishankant Sharma'}
+              {'Abraham Lincoln'}
             </Text>
           </View>
           <Text numberOfLines={1} style={style.dateText}>
             {'23 Feb 2023'}
           </Text>
           <Text numberOfLines={1} style={style.userNameText}>
-            {'@krishankant_sharma_1234'}
+            {'@abraham_lincoln_1234'}
           </Text>
         </View>
         <View style={style.sideIconsView}>
@@ -125,6 +138,18 @@ const App = () => {
             />
           </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          style={style.fullScreenView}
+          onPress={() => setFullScreen(!isFullScreen)}>
+          <Image
+            source={{
+              uri: isFullScreen
+                ? 'https://img.icons8.com/external-zen-filled-royyan-wijaya/24/null/external-so-arrow-resize-min-arrow-zen-filled-royyan-wijaya.png'
+                : 'https://img.icons8.com/external-zen-filled-royyan-wijaya/24/null/external-so-arrow-resize-max-arrow-zen-filled-royyan-wijaya.png',
+            }}
+            style={style.commentImage}
+          />
+        </TouchableOpacity>
       </View>
     );
   });
@@ -137,10 +162,63 @@ const App = () => {
   // To extract keys from list of url's
   const keyExtractor = item => item.id;
 
+  // To show animation placeholder view
+  const AnimatedPlaceholderViewComponent = () => {
+    return (
+      <View
+        style={{
+          height:
+            Platform.OS === 'ios'
+              ? initialWindowMetrics.frame.height -
+                (initialWindowMetrics.insets.bottom +
+                  initialWindowMetrics.insets.top)
+              : initialWindowMetrics.frame.height,
+          width: '100%',
+        }}>
+        <SkeletonPlaceholder borderRadius={4} backgroundColor={'grey'}>
+          <SkeletonPlaceholder.Item
+            height={
+              Platform.OS === 'ios'
+                ? initialWindowMetrics.frame.height -
+                  (initialWindowMetrics.insets.bottom +
+                    initialWindowMetrics.insets.top)
+                : initialWindowMetrics.frame.height - 200
+            }
+            marginHorizontal={10}
+            marginTop={30}
+            borderRadius={10}
+          />
+          <SkeletonPlaceholder.Item
+            flexDirection="row"
+            alignItems="center"
+            marginTop={50}>
+            <SkeletonPlaceholder.Item
+              width={60}
+              height={60}
+              borderRadius={50}
+              marginLeft={20}
+            />
+            <SkeletonPlaceholder.Item marginLeft={20}>
+              <SkeletonPlaceholder.Item width={200} height={20} />
+              <SkeletonPlaceholder.Item
+                marginTop={10}
+                width={150}
+                height={20}
+              />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder.Item>
+        </SkeletonPlaceholder>
+      </View>
+    );
+  };
+
   // Main component to render screen
   return (
     <SafeAreaView style={style.container}>
       <FlatList
+        pos
+        decelerationRate={'fast'}
+        scrollEventThrottle={3}
         data={getVideoList}
         keyExtractor={keyExtractor}
         style={style.container}
@@ -151,6 +229,7 @@ const App = () => {
         maxToRenderPerBatch={3}
         removeClippedSubviews={true}
       />
+      {viewPlaceholder && <AnimatedPlaceholderViewComponent />}
     </SafeAreaView>
   );
 };
@@ -161,11 +240,16 @@ export default App;
 const style = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#282828',
   },
   mainView: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: initialWindowMetrics.frame.height, // Used to get dynamic height of device
+    height:
+      Platform.OS === 'ios'
+        ? initialWindowMetrics.frame.height -
+          (initialWindowMetrics.insets.bottom + initialWindowMetrics.insets.top)
+        : initialWindowMetrics.frame.height, // Used to get dynamic height of device
     width: '100%',
     backgroundColor: '#282828',
   },
@@ -224,6 +308,16 @@ const style = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  fullScreenView: {
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 30,
+    right: 10,
   },
   likeImage: {
     height: 35,
