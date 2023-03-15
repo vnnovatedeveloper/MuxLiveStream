@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   FlatList,
@@ -65,6 +65,9 @@ const App = () => {
   ]);
   const [viewPlaceholder, setViewPlaceholder] = useState(true);
   const [isFullScreen, setFullScreen] = useState(false);
+  const [isLiked, setLiked] = useState(false);
+  const [isComment, setComment] = useState(false);
+  const [isshared, setshared] = useState(false);
 
   // Used for hide the splash screen
   useEffect(() => {
@@ -73,8 +76,8 @@ const App = () => {
 
   useEffect(() => {}, [viewPlaceholder]);
 
-  // Custom component to render video with memo function
-  const FullScreenScrollableVideoComponent = React.memo(({item}) => {
+  // To Pass custom component in flatlist
+  const renderList = ({item}) => {
     return (
       <View style={[style.mainView]}>
         <Video
@@ -113,28 +116,43 @@ const App = () => {
           </Text>
         </View>
         <View style={style.sideIconsView}>
-          <TouchableOpacity style={style.likeImageView}>
+          <TouchableOpacity
+            style={style.likeImageView}
+            onPress={() => setLiked(!isLiked)}>
             <Image
               source={{
                 uri: 'https://img.icons8.com/fluency-systems-regular/48/null/thumb-up.png',
               }}
-              style={style.likeImage}
+              style={[
+                style.likeImage,
+                {tintColor: isLiked ? 'hotpink' : 'white'},
+              ]}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={style.likeImageView}>
+          <TouchableOpacity
+            style={style.likeImageView}
+            onPress={() => setComment(!isComment)}>
             <Image
               source={{
                 uri: 'https://img.icons8.com/external-inkubators-basic-outline-inkubators/32/null/external-comment-dashboard-ui-inkubators-basic-outline-inkubators.png',
               }}
-              style={style.commentImage}
+              style={[
+                style.commentImage,
+                {tintColor: isComment ? 'orange' : 'white'},
+              ]}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={style.likeImageView}>
+          <TouchableOpacity
+            style={style.likeImageView}
+            onPress={() => setshared(!isshared)}>
             <Image
               source={{
                 uri: 'https://img.icons8.com/ios-glyphs/30/null/share-rounded.png',
               }}
-              style={style.shareImage}
+              style={[
+                style.shareImage,
+                {tintColor: isshared ? 'blue' : 'white'},
+              ]}
             />
           </TouchableOpacity>
         </View>
@@ -152,11 +170,6 @@ const App = () => {
         </TouchableOpacity>
       </View>
     );
-  });
-
-  // To Pass custom component in flatlist
-  const renderList = ({item}) => {
-    return <FullScreenScrollableVideoComponent item={item} />;
   };
 
   // To extract keys from list of url's
