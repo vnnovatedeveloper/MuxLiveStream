@@ -36,17 +36,20 @@ jobs:
       - name: Check Permission
         run: cd android && chmod +x ./gradlew
 
-      - name: Bundle *.aap & *.apk
+      - name: Bundle *.apk
         run: cd android && ./gradlew assembleRelease
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
-          name: Apk
+          name: MY APK FILE
           path: android/app/build/outputs/apk/release/app-release.apk
+          
+      - name: Bundle *.aap
+        run: cd android && ./gradlew bundleRelease 
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
-          name: Aab
+          name: MY AAB FILE
           path: android/app/build/outputs/bundle/release/app-release.aab
