@@ -1,7 +1,24 @@
+
 name: iOS
 
-# Triggered when code is pushed to any branch in a repository
+# Triggered when code is pushed to any branch in a repository 
 on: push
+    
+env:
+  WORKSPACE: ${{ 'ios/MuxApp.xcworkspace' }}
+  SCHEME: ${{ 'MuxApp' }}
+  CONFIGURATION: ${{ 'Release' }}
+  ARCHIVE_PATH: ${{ 'ios/MuxApp.xcarchive' }}
+  EXPORT_PATH: ${{ 'ios/' }}
+  PLIST_PATH: ${{ 'ios/MuxApp/Info.plist' }}
+  ARTIFACT_NAME: ${{ 'MuxApp.ipa' }}
+  ARTIFACT_PATH: ${{ 'ios/' }}
+  UPLOAD_FILE: ${{ 'ios/MuxApp.ipa' }}
+  DEVELOPMENT_CERTIFICATE: ${{ secrets.IOS_LOCAL_DEVELOPMENT_CERTIFICATE_P12 }}
+  CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+  DEVELOPMENT_PROFILE: ${{secrets.IOS_LOCAL_PROVISION_PROFILE }}
+  KEY_PWD: ${{ secrets.IOS_KEY_CHAIN_PASSWORD }}
+  
 
 jobs:
   build-ios:
@@ -32,5 +49,67 @@ jobs:
       - run: pod install
         working-directory: ios
 
-      - run: xcodebuild clean archive -workspace testCiCdReactNative.xcworkspace -scheme testCiCdReactNative -archivePath testCiCdReactNative.xcarchive CODE_SIGNING_ALLOWED=NO | xcpretty
+      - name: Local Development
+        run: |
+          # create variables
+          CERT_PATH=$RUNNER_TEMP/dist_certificate.p12
+          PP_PATH=$RUNNER_TEMP/dist_pp.mobileprovision
+          KCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+  
+          # import certificate and provisioning profile from secrets
+          echo -n "$DEVELOPMENT_CERTIFICATE" | base64 - decode - output $CERT_PATH
+          echo -n "$DEVELOPMENT_PROFILE" | base64 - decode - output $PP_PATH
+          
+          # create temporary keychain
+          security create-keychain -p "$KEY_PWD" $KCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KCHAIN_PATH
+          security unlock-keychain -p "$KEY_PWD" $KCHAIN_PATH
+          
+          # import certificate to keychain
+          security import $CERT_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KCHAIN_PATH
+          security list-keychain -d user -s $KCHAIN_PATH
+          
+          # apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode_13.2.1.app
+        
+      - name: Xcode Version
+        run: /usr/bin/xcodebuild -version
+        
+      - name: Create build folder
+        run: |
+         mkdir -p build
+        
+      - name: Build Archive
+        run: |
+          xcodebuild -workspace $WORKPLACE -scheme $SCHEME -configuration $CONFIGURATION \
+          archive -archivePath $ARCHIVE_PATH -allowProvisioningUpdates
+          PROVISIONING_STYLE="Manual" \
+          PROVISIONING_PROFILE={$DEVELOPMENT_PROFILE} \
+          CODE_SIGN_STYLE="Manual" \
+          CODE_SIGN_IDENTITY={$DEVELOPMENT_CERTIFICATE} \
+
+      - name: Export Build
+        run: |
+          xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportPath $EXPORT_PATH . -exportOptionsPlist $PLIST_PATH \
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: |
+            ${{ env.ARTIFACT_PATH }}
+
+      - name: Clean up keychain and provisioning profile
+        if: ${{ always() }}
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+          rm ~/Library/MobileDevice/Provisioning\ Profiles/dist_pp.mobileprovision
+          rm ~/Library/MobileDevice/Provisioning\ Profiles/dist_pp_adc.mobileprovision
+
+      - name: Clean Build and Archive
+        run: xcodebuild clean archive -workspace MuxApp.xcworkspace -scheme MuxApp -archivePath MuxApp.xcarchive CODE_SIGNING_ALLOWED=NO | xcpretty
         working-directory: ios
